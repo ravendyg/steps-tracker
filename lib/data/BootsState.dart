@@ -6,6 +6,8 @@ import 'package:steps_tracker/data/DayRecord.dart';
 import 'package:collection/collection.dart';
 import 'package:steps_tracker/utils/fileUtils.dart';
 
+const STEPS_IN_KM = 1200;
+
 class BootsState extends ChangeNotifier {
   final String _storageFile = 'state.json';
   final List<BootsPair> pairs = [];
@@ -15,25 +17,29 @@ class BootsState extends ChangeNotifier {
 
   BootsState() {
     readFromFile(_storageFile).then((value) {
-      var js = json.decode(value);
-      for (var i = 0; i < js['pairs'].length; i++) {
-        var e = js['pairs'][i];
-        var p = BootsPair(e['id'], e['name']);
-        p.total = e['total'];
-        pairs.add(p);
-      }
-      for (var i = 0; i < js['days'].length; i++) {
-        var e = js['days'][i];
-        var bm = Map<String, double>.from(e['bootsMap']);
-        var d = DayRecord.fromJson(e['day'], bm);
-        days.add(d);
-        var first = DayRecord(DateTime.now());
-        // Make sure that the current day is always present.
-        if (days.length == 0 || days[0].day != first.day) {
-          days.insert(0, first);
+      if (value != null) {
+        var js = json.decode(value);
+        for (var i = 0; i < js['pairs'].length; i++) {
+          var e = js['pairs'][i];
+          var p = BootsPair(e['id'], e['name']);
+          p.total = e['total'];
+          pairs.add(p);
         }
+        for (var i = 0; i < js['days'].length; i++) {
+          var dayRecordJson = js['days'][i];
+          var bootsMapJson =
+              Map<String, double>.from(dayRecordJson['bootsMap']);
+          var dayRecord =
+              DayRecord.fromJson(dayRecordJson['day'], bootsMapJson);
+          days.add(dayRecord);
+        }
+        totalDistance = js['totalDistance'];
       }
-      totalDistance = js['totalDistance'];
+      var first = DayRecord(DateTime.now());
+      // Make sure that the current day is always present.
+      if (days.length == 0 || days[0].day != first.day) {
+        days.insert(0, first);
+      }
       loading = false;
       notifyListeners();
     });
@@ -54,6 +60,9 @@ class BootsState extends ChangeNotifier {
     var i = 0;
     try {
       _distance = double.parse(distance);
+      if (_distance > 100) {
+        _distance = (_distance / STEPS_IN_KM * 100).round() / 100;
+      }
     } catch (e) {}
     var nextRecordDate = DateTime.parse(days[i].day);
     DayRecord? dayRecord;

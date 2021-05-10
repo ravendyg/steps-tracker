@@ -11,7 +11,11 @@ Future<void> writeToFile(String str, String fileName) async {
   await file.writeAsString(str);
 }
 
-Future<String> readFromFile(String fileName) async {
-  final file = await getFile(fileName);
-  return await file.readAsString();
+Future<String?> readFromFile(String fileName) async {
+  try {
+    final file = await getFile(fileName);
+    return await file.readAsString();
+  } catch (e) {
+    return null;
+  }
 }
