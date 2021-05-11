@@ -203,10 +203,20 @@ class _MainPage extends State<MainPage> {
         dayDistanceStr = '$dayDistance';
       }
     }
+    var textStyle = TextStyle(
+      fontWeight: day.day.weekday == 6 || day.day.weekday == 7
+          ? FontWeight.bold
+          : FontWeight.normal,
+      color: day.day.day == 1 ? Colors.green : Colors.black,
+    );
+
     return Container(
       child: Row(
         children: [
-          Text(day.displayDate()),
+          Text(
+            day.displayDate(),
+            style: textStyle,
+          ),
           Text(dayDistanceStr),
         ],
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
