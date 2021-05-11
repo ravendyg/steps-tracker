@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:steps_tracker/data/BootsState.dart';
 import 'package:steps_tracker/data/DayRecord.dart';
-import 'package:steps_tracker/utils/formatDate.dart';
+import 'package:steps_tracker/utils/dateUtils.dart';
 
 class EditorPageArguments {
   int dayId = 0;
@@ -26,7 +26,7 @@ class DistanceEditorPage extends StatelessWidget {
 }
 
 class DistanceEditorPageContent extends StatefulWidget {
-  final String day;
+  final DateTime day;
   final String pairId;
   final double distance;
 
@@ -49,7 +49,7 @@ class _DistanceEditorPageContent extends State<DistanceEditorPageContent> {
 
   @override
   void initState() {
-    _date = DateTime.parse(widget.day);
+    _date = widget.day;
     _pairId = widget.pairId;
     if (widget.distance != 0.0) {
       _distanceController.text = '${widget.distance}';
@@ -95,7 +95,7 @@ class _DistanceEditorPageContent extends State<DistanceEditorPageContent> {
               children: [
                 Container(
                   child: ElevatedButton(
-                    child: Text(formaDate(_date)),
+                    child: Text(formatDateWithWeekDay(_date)),
                     onPressed: () => _selectDate(ctx),
                   ),
                 ),

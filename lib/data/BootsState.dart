@@ -46,35 +46,35 @@ class BootsState extends ChangeNotifier {
   }
 
   void addPair(BootsPair pair) {
-    pairs.add(pair);
+    pairs.insert(0, pair);
     _performUpdate();
   }
 
   void updateDistance(DateTime date, String bootsId, String distance) {
-    var pair = pairs.firstWhereOrNull((e) => e.id == bootsId);
-    if (pair == null) {
+    var updatedPair = pairs.firstWhereOrNull((e) => e.id == bootsId);
+    if (updatedPair == null) {
       return;
     }
     double _distance = 0.0;
 
-    var i = 0;
+    var dayIndex = 0;
     try {
       _distance = double.parse(distance);
       if (_distance > 100) {
         _distance = (_distance / STEPS_IN_KM * 100).round() / 100;
       }
     } catch (e) {}
-    var nextRecordDate = DateTime.parse(days[i].day);
+    var nextRecordDate = days[dayIndex].day;
     DayRecord? dayRecord;
-    for (; i < days.length; i++) {
+    for (; dayIndex < days.length; dayIndex++) {
       var recordDate = nextRecordDate;
       if (recordDate == date) {
-        dayRecord = days[i];
+        dayRecord = days[dayIndex];
         break;
       }
       // The list ended, days is not found.
-      if (i + 1 >= days.length) break;
-      nextRecordDate = DateTime.parse(days[i + 1].day);
+      if (dayIndex + 1 >= days.length) break;
+      nextRecordDate = days[dayIndex + 1].day;
       // A new day between two existing.
       if (recordDate.compareTo(date) == 1 &&
           nextRecordDate.compareTo(date) == -1) {
@@ -84,27 +84,33 @@ class BootsState extends ChangeNotifier {
     if (dayRecord == null) {
       dayRecord = DayRecord(date);
       dayRecord.bootsMap[bootsId] = _distance;
-      days.insert(i + 1, dayRecord);
+      days.insert(dayIndex + 1, dayRecord);
     } else {
       // if replacing subtract previous distance
       var oldDistance = dayRecord.bootsMap[bootsId];
       if (oldDistance != null) {
-        pair.total -= oldDistance;
+        updatedPair.total -= oldDistance;
         totalDistance -= oldDistance;
       }
       dayRecord.bootsMap[bootsId] = _distance;
     }
-    pair.total += _distance;
+    updatedPair.total += _distance;
     totalDistance += _distance;
+
+    // put the updated pair in the front
+    if (pairs[0] != updatedPair) {
+      pairs.remove(updatedPair);
+      pairs.insert(0, updatedPair);
+    }
 
     _performUpdate();
   }
 
-  DayRecord? getDayRecord(String day) {
+  DayRecord? getDayRecord(DateTime day) {
     return days.firstWhereOrNull((e) => e.day == day);
   }
 
-  double getDayBootsDistance(String day, String bootsId) {
+  double getDayBootsDistance(DateTime day, String bootsId) {
     var record = getDayRecord(day);
     if (record == null) return 0.0;
     var p = record.bootsMap[bootsId];

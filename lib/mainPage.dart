@@ -13,7 +13,6 @@ class MainPage extends StatefulWidget {
 
 class _MainPage extends State<MainPage> {
   final double _rowHeight = 36;
-  HDTRefreshController _hdtRefreshController = HDTRefreshController();
 
   List<DayRecord> dayRecords = [];
 
@@ -54,7 +53,7 @@ class _MainPage extends State<MainPage> {
       return Container(
         child: HorizontalDataTable(
           leftHandSideColumnWidth: 100,
-          rightHandSideColumnWidth: 600,
+          rightHandSideColumnWidth: (state.pairs.length + 1) * 100,
           isFixedHeader: true,
           headerWidgets: _getHeaderWidget(state),
           leftSideItemBuilder: (BuildContext ctx, int index) =>
@@ -74,14 +73,7 @@ class _MainPage extends State<MainPage> {
             thickness: 4.0,
             radius: Radius.circular(5.0),
           ),
-          enablePullToRefresh: true,
-          refreshIndicator: const WaterDropHeader(),
-          refreshIndicatorHeight: 60,
-          onRefresh: () async {
-            await Future.delayed(const Duration(milliseconds: 500));
-            _hdtRefreshController.refreshCompleted();
-          },
-          htdRefreshController: _hdtRefreshController,
+          enablePullToRefresh: false,
         ),
         height: MediaQuery.of(context).size.height,
       );
@@ -147,7 +139,7 @@ class _MainPage extends State<MainPage> {
             padding: padding,
           ),
           Container(
-            child: Text('$totalDistance',
+            child: Text('${totalDistance.round()}',
                 style: TextStyle(fontWeight: FontWeight.normal)),
             height: 23,
             decoration: BoxDecoration(
@@ -173,7 +165,7 @@ class _MainPage extends State<MainPage> {
   }
 
   Widget _getHeaderBootsItemWidget(BootsPair pair) {
-    return _getHeaderItemWidget(pair.name, pair.total.toString());
+    return _getHeaderItemWidget(pair.name, pair.total.round().toString());
   }
 
   Widget _getHeaderLastItemWidget(String nextId) {
@@ -198,7 +190,7 @@ class _MainPage extends State<MainPage> {
 
   Widget _getFirstColumnRow(BuildContext ctx, int index, DayRecord day) {
     return Container(
-      child: Text(day.day),
+      child: Text(day.displayDate()),
       width: 100,
       height: _rowHeight,
       padding: EdgeInsets.fromLTRB(5, 0, 0, 0),
