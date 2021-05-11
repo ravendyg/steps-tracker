@@ -167,6 +167,7 @@ class _DistanceEditorPageContent extends State<DistanceEditorPageContent> {
       initialDate: _date,
       firstDate: DateTime(2000),
       lastDate: DateTime.now(),
+      locale: const Locale('ru'),
     );
     if (picked != null && picked != _date) {
       setState(() {

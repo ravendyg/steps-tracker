@@ -13,9 +13,11 @@ const WEEKDAY_NAMES = {
 };
 
 String formatDateWithWeekDay(DateTime date) {
-  var y = '${date.year}'.substring(2);
   var res =
-      '${formatNum(date.day)}-${formatNum(date.month)} (${WEEKDAY_NAMES[date.weekday]}) $y';
+      '${formatNum(date.day)}-${formatNum(date.month)} (${WEEKDAY_NAMES[date.weekday]})';
+  // if (date.day == 1) {
+  //   res += ' ' + '${date.year}'.substring(2);
+  // }
   return res;
 }
 

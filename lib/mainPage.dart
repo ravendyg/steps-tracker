@@ -11,6 +11,8 @@ class MainPage extends StatefulWidget {
   _MainPage createState() => _MainPage();
 }
 
+const FIRST_COL_WIDTH = 130.0;
+
 class _MainPage extends State<MainPage> {
   final double _rowHeight = 36;
 
@@ -52,7 +54,7 @@ class _MainPage extends State<MainPage> {
 
       return Container(
         child: HorizontalDataTable(
-          leftHandSideColumnWidth: 100,
+          leftHandSideColumnWidth: FIRST_COL_WIDTH,
           rightHandSideColumnWidth: (state.pairs.length + 1) * 100,
           isFixedHeader: true,
           headerWidgets: _getHeaderWidget(state),
@@ -152,7 +154,7 @@ class _MainPage extends State<MainPage> {
           ),
         ],
       ),
-      width: 100,
+      width: FIRST_COL_WIDTH,
       height: 60,
       decoration: BoxDecoration(
         border: Border(
@@ -189,11 +191,29 @@ class _MainPage extends State<MainPage> {
   }
 
   Widget _getFirstColumnRow(BuildContext ctx, int index, DayRecord day) {
+    String dayDistanceStr = '';
+    if (day.bootsMap.entries.length > 0) {
+      var dayDistance = (day.bootsMap.entries
+                      .map((e) => e.value)
+                      .reduce((value, element) => value + element) *
+                  100)
+              .round() /
+          100;
+      if (dayDistance > 0.0) {
+        dayDistanceStr = '$dayDistance';
+      }
+    }
     return Container(
-      child: Text(day.displayDate()),
-      width: 100,
+      child: Row(
+        children: [
+          Text(day.displayDate()),
+          Text(dayDistanceStr),
+        ],
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      ),
+      width: FIRST_COL_WIDTH,
       height: _rowHeight,
-      padding: EdgeInsets.fromLTRB(5, 0, 0, 0),
+      padding: EdgeInsets.fromLTRB(5, 0, 5, 0),
       alignment: Alignment.centerLeft,
       decoration: BoxDecoration(
         border: Border(
@@ -219,7 +239,7 @@ class _MainPage extends State<MainPage> {
         child: Container(
           child: Row(
             children: <Widget>[
-              Text('$distance'),
+              Text(distance > 0.0 ? '$distance' : ''),
             ],
           ),
           width: 100,

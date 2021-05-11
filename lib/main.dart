@@ -4,6 +4,7 @@ import 'package:steps_tracker/bootsEditorPage.dart';
 import 'package:steps_tracker/distanceEditorPage.dart';
 import 'package:steps_tracker/mainPage.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 void main() {
   runApp(
@@ -25,6 +26,14 @@ class App extends StatelessWidget {
         '/edit-boots': (ctx) => BootsEditorPage(),
         '/edit-distance': (ctx) => DistanceEditorPage(),
       },
+      localizationsDelegates: [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: [
+        const Locale('ru', ''), // Spanish, no country code
+      ],
     );
   }
 }
