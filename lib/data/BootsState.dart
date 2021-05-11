@@ -50,20 +50,46 @@ class BootsState extends ChangeNotifier {
     _performUpdate();
   }
 
-  void updateDistance(DateTime date, String bootsId, String distance) {
+  void updateDistance(
+      int dayId, DateTime date, String bootsId, String distance) {
     var updatedPair = pairs.firstWhereOrNull((e) => e.id == bootsId);
     if (updatedPair == null) {
       return;
     }
-    double _distance = 0.0;
 
-    var dayIndex = 0;
+    double _distance = 0.0;
     try {
       _distance = double.parse(distance);
       if (_distance > 100) {
         _distance = (_distance / STEPS_IN_KM * 100).round() / 100;
       }
-    } catch (e) {}
+    } catch (e) {
+      return;
+    }
+
+    if (dayId >= 0) {
+      var updatedDay = days[dayId];
+      // remove the old value
+      var oldDistance = updatedDay.bootsMap[bootsId];
+      if (oldDistance != null) {
+        updatedPair.total -= oldDistance;
+        totalDistance -= oldDistance;
+      }
+      updatedDay.bootsMap[bootsId] = 0.0;
+
+      // date has not been changed, just set the new value
+      if (updatedDay.day == date) {
+        updatedDay.bootsMap[bootsId] = _distance;
+        updatedPair.total += _distance;
+        totalDistance += _distance;
+        _performUpdate();
+        return;
+      }
+      // if the date has been change
+      // can now proceed to inserting as if it was a new one
+    }
+
+    var dayIndex = 0;
     var nextRecordDate = days[dayIndex].day;
     DayRecord? dayRecord;
     for (; dayIndex < days.length; dayIndex++) {
@@ -86,6 +112,9 @@ class BootsState extends ChangeNotifier {
       dayRecord.bootsMap[bootsId] = _distance;
       days.insert(dayIndex + 1, dayRecord);
     } else {
+      // @todo: maybe need different pages for adding and editing
+      // also somehow notify the users on the editor page that he is going
+      // to overwrite an existing value
       // if replacing subtract previous distance
       var oldDistance = dayRecord.bootsMap[bootsId];
       if (oldDistance != null) {

@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:steps_tracker/data/BootsState.dart';
-import 'package:steps_tracker/data/DayRecord.dart';
 import 'package:steps_tracker/utils/dateUtils.dart';
 
 class EditorPageArguments {
-  int dayId = 0;
+  int dayId = -1;
   String bootsId = '-1';
 }
 
@@ -15,23 +14,36 @@ class DistanceEditorPage extends StatelessWidget {
     return Consumer<BootsState>(builder: (ctx, state, child) {
       final EditorPageArguments args =
           ModalRoute.of(ctx)?.settings.arguments as EditorPageArguments;
-      final DayRecord day = state.days[args.dayId];
+      DateTime day;
+      double distance = 0.0;
+      if (args.dayId >= 0) {
+        // editing existing record
+        day = state.days[args.dayId].day;
+        distance = state.getDayBootsDistance(day, args.bootsId);
+      } else {
+        // creating a new one
+        // today by default
+        day = state.days[0].day;
+      }
       return DistanceEditorPageContent(
-        day: day.day,
+        dayId: args.dayId,
+        day: day,
         pairId: args.bootsId,
-        distance: state.getDayBootsDistance(day.day, args.bootsId),
+        distance: distance,
       );
     });
   }
 }
 
 class DistanceEditorPageContent extends StatefulWidget {
+  final int dayId;
   final DateTime day;
   final String pairId;
   final double distance;
 
   DistanceEditorPageContent(
       {Key? key,
+      required this.dayId,
       required this.day,
       required this.pairId,
       required this.distance})
@@ -133,8 +145,8 @@ class _DistanceEditorPageContent extends State<DistanceEditorPageContent> {
                     ),
                     onPressed: _pairId != '-1'
                         ? () {
-                            state.updateDistance(
-                                _date, _pairId, _distanceController.text);
+                            state.updateDistance(widget.dayId, _date, _pairId,
+                                _distanceController.text);
                             Navigator.pop(context);
                           }
                         : null,
