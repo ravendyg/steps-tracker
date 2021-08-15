@@ -124,11 +124,7 @@ class BootsState extends ChangeNotifier {
   void _init() async {
     String? value = await readFromFile(_storageFile);
     if (value != null) {
-      var js = json.decode(value);
-      var version = js['version'] ?? '1';
-      if (version == '1') {
-        parseV1(js);
-      }
+      _parseString(value);
     } else {
       var first = DayRecord(DateTime.now());
       // Make sure that the current day is always present.
@@ -140,7 +136,23 @@ class BootsState extends ChangeNotifier {
     notifyListeners();
   }
 
-  void parseV1(dynamic js) {
+  void set(String value) {
+    pairs.clear();
+    days.clear();
+    totalDistance = 0.0;
+    _parseString(value);
+    _performUpdate();
+  }
+
+  void _parseString(String value) {
+    var js = json.decode(value);
+    var version = js['version'] ?? '1';
+    if (version == '1') {
+      _parseV1(js);
+    }
+  }
+
+  void _parseV1(dynamic js) {
     for (var i = 0; i < js['pairs'].length; i++) {
       var e = js['pairs'][i];
       var p = BootsPair(e['id'], e['name']);
@@ -149,11 +161,15 @@ class BootsState extends ChangeNotifier {
     }
     for (var i = 0; i < js['days'].length; i++) {
       var dayRecordJson = js['days'][i];
-      var bootsMapJson = Map<String, double>.from(dayRecordJson['bootsMap']);
+      var bootsMapJson = Map<String, double>();
+      var list = Map<String, dynamic>.of(dayRecordJson['bootsMap']);
+      list.forEach((key, value) {
+        bootsMapJson[key] = value.toDouble();
+      });
       var dayRecord = DayRecord.fromJson(dayRecordJson['day'], bootsMapJson);
       days.add(dayRecord);
     }
-    totalDistance = js['totalDistance'];
+    totalDistance = js['totalDistance'].toDouble();
     var first = DayRecord(DateTime.now());
     // Make sure that the current day is always present.
     if (days.length == 0 || days[0].day != first.day) {

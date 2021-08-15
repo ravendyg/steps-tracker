@@ -26,16 +26,34 @@ class _MainPage extends State<MainPage> {
   @override
   Widget build(BuildContext ctx) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Steps tracker'),
+        actions: _getAppBarActions(ctx),
+      ),
       body: _getBodyWidget(),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.pushNamed(ctx, '/edit-distance',
               arguments: EditorPageArguments());
         },
-        child: const Icon(Icons.edit),
+        child: const Icon(Icons.add),
         backgroundColor: Colors.green,
       ),
     );
+  }
+
+  List<Widget> _getAppBarActions(BuildContext ctx) {
+    return [
+      GestureDetector(
+        onTap: () {
+          Navigator.pushNamed(ctx, '/settings');
+        },
+        child: Padding(
+          padding: EdgeInsets.only(right: 24),
+          child: Icon(Icons.person),
+        ),
+      ),
+    ];
   }
 
   Widget _getBodyWidget() {

@@ -32,6 +32,9 @@ dependencies:
   horizontal_data_table: ^3.0.0
   provider: ^5.0.0
   path_provider: ^2.0.1
+  http: ^0.13.3
+  flutter_secure_storage: ^4.2.1
+  google_sign_in: ^5.0.7
 
 dev_dependencies:
   flutter_test:
